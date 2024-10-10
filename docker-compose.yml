@@ -1,0 +1,58 @@
+services:
+  # NestJS API service
+  api:
+    build:
+      context: ./kidizz
+      dockerfile: Dockerfile
+    container_name: nestjs-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=nestjs
+    networks:
+      - backend
+
+  # PostgreSQL database service
+  db:
+    image: postgres:13
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestjs
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # Vue.js frontend service
+  vue-app:
+    build:
+      context: ./kidiz-interface      
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" 
+    networks:
+      - backend
+    env_file:
+      - ./kidiz-interface/.env
+    depends_on:
+      - api  
+
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local

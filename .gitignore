@@ -1,0 +1,10 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Ignore logs
+*.log
+
+# Add any other specific files or patterns to ignore
