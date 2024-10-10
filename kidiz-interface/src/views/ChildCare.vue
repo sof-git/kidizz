@@ -44,6 +44,7 @@ const addChild = (child: IChild) => {
 
 <template>
     <main>
+        <p class="text-h4 text-primary mt-10 " justify-center>{{ ChildCareName }}</p>
         <section>
         <v-text-field
             v-model="search"
