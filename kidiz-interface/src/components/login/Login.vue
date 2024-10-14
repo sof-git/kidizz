@@ -1,68 +1,73 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
-import {loginSchema, registerSchema} from '@/plugins/joi';
+import { ref, type Ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { loginSchema, registerSchema } from '@/plugins/joi'
+import Alert from '@/components/common/alert.vue'
 
-const username: Ref<string> = ref('');
-const email: Ref<string> = ref('');
-const userNotFound = ref(false);
-const errorMessage = ref(''); 
+const username: Ref<string> = ref('')
+const email: Ref<string> = ref('')
+const userNotFound = ref(false)
+const alertMEssage = ref('')
+const alertType = ref<'success' | 'info' | 'warning' | 'error' | undefined>(undefined) // Define the type
 
-const router = useRouter();
-const authStore = useAuthStore();
+const router = useRouter()
+const authStore = useAuthStore()
 // Function to handle login
 const submit = async () => {
   // Validate the username using your schema
-  const { error } = loginSchema.validate({ username: username.value });
+  const { error } = loginSchema.validate({ username: username.value })
   if (error) {
-    errorMessage.value = error.message;
-    return;
+    alertMEssage.value = error.message
+    alertType.value = 'error'
+    return
   }
 
   // Reset the error message and userNotFound state
-  errorMessage.value = '';
-  userNotFound.value = false;
-
+  alertMEssage.value = ''
+  userNotFound.value = false
   try {
     // Attempt to log in the user
-    const res = await authStore.login(username.value);
+    const res = await authStore.login(username.value)
     // If the user is found, redirect to the home page
     if (res.status === 200) {
-      router.push('/');
-    } 
+      router.push('/')
+    }
     // If the user is not found (404), show an appropriate message
     else {
-      errorMessage.value = 'User not found. Please register below.';
-      userNotFound.value = true;  // Set `userNotFound` to false if user is not found
+      alertMEssage.value = 'User not found. Please register.'
+      alertType.value = 'warning'
+      userNotFound.value = true // Set `userNotFound` to false if user is not found
     }
   } catch (error) {
     // If an unexpected error occurs, show a general error message
-    errorMessage.value = 'An error occurred during login.';
-    userNotFound.value = false;
+    alertMEssage.value = 'An error occurred during login.'
+    userNotFound.value = false
   }
-};
+}
 
 // Function to handle registration
 const register = async () => {
-    const { error } = registerSchema.validate({ username: username.value, email: email.value });
-        if (error) {
-            errorMessage.value = error.message;
-            return;
-        }
-  errorMessage.value = ''; // Reset error message before registration attempt
+  const { error } = registerSchema.validate({ username: username.value, email: email.value })
+  if (error) {
+    alertMEssage.value = error.message
+    alertType.value = 'error'
+    return
+  }
+  alertMEssage.value = '' // Reset error message before registration attempt
   try {
-    const res = await authStore.register(username.value, email.value);
+    const res = await authStore.register(username.value, email.value)
     if (res.status === 201 || res.status === 200) {
-      router.push('/');
+      router.push('/')
     } else {
-      errorMessage.value = res instanceof Error ? res.message : 'Registration failed.';
+      alertMEssage.value = res instanceof Error ? res.message : 'Registration failed.'
     }
   } catch (error) {
-    console.error('Registration error:', error);
-    errorMessage.value = 'An error occurred during registration.';
+    console.error('Registration error:', error)
+    alertType.value = 'error'
+    alertMEssage.value = 'An error occurred during registration.'
   }
-};
+}
 </script>
 
 <template>
@@ -80,7 +85,7 @@ const register = async () => {
             <!-- Dynamic class binding for error styles -->
             <v-text-field
               v-model="username"
-              :class="{'error-border': errorMessage}" 
+              :class="{ 'error-border': alertMEssage }"
               label="Username"
               required
             ></v-text-field>
@@ -93,13 +98,13 @@ const register = async () => {
             <!-- Dynamic class binding for error styles -->
             <v-text-field
               v-model="username"
-              :class="{'error-border': errorMessage}"
+              :class="{ 'error-border': alertMEssage }"
               label="Username"
               required
             ></v-text-field>
             <v-text-field
               v-model="email"
-              :class="{'error-border': errorMessage}"
+              :class="{ 'error-border': alertMEssage }"
               label="Email"
               type="email"
               required
@@ -108,16 +113,15 @@ const register = async () => {
           </v-form>
         </v-col>
       </v-row>
-      
+
       <!-- Error Message Display -->
-      <v-row justify="center" v-if="errorMessage">
+      <v-row justify="center" v-if="alertMEssage">
         <v-col cols="8" md="3">
-          <p class="error-message">{{ errorMessage }}</p>
+          <Alert :message="alertMEssage" :type="alertType" :show="!!alertMEssage" />
         </v-col>
       </v-row>
     </v-container>
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

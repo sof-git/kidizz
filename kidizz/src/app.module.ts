@@ -20,7 +20,7 @@ import { ChildController } from './child/child.controller';
       port: parseInt(process.env.DB_PORT, 10) || 5432,
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_DATABASE || 'nestjs',
+      database: process.env.DB_DATABASE || 'kidizz',
       autoLoadEntities: true,
       synchronize: true,
     }),

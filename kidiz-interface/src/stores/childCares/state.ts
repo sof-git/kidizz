@@ -1,9 +1,9 @@
-import type { IChildCare } from '@/types/childCare';
+import type { IChildCare } from '@/types/childCare'
 
 export function useState() {
-    return {
-        childCares: [] as IChildCare[]
-    };
+  return {
+    childCares: [] as IChildCare[]
+  }
 }
 
-export type IChildCareState = ReturnType<typeof useState>;
+export type IChildCareState = ReturnType<typeof useState>

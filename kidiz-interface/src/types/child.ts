@@ -1,6 +1,6 @@
 export interface IChild {
-    id: number;
-    lastname: string;
-    firstname: string;
-    childCareIds?: number[];
+  id: number
+  lastname: string
+  firstname: string
+  childCareIds?: number[]
 }

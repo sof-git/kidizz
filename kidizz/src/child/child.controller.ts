@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Body,
   Headers,
   Param,
@@ -16,7 +17,7 @@ import { Response } from 'express';
 import { ChildService } from './child.service';
 import { ChildDto } from './child.dto';
 import { UserService } from '../user/user.service';
-import { Stream } from 'stream';
+
 @Controller('child')
 export class ChildController {
   constructor(
@@ -39,6 +40,20 @@ export class ChildController {
     return this.childService.getChildrenByChildCare(Number(id));
   }
 
+  @Put('/child-care/:childCareId/child/:childId')
+  async updateChildCare(
+    @Param('childId') childId: number,
+    @Param('childCareId') childCareId: number,
+    @Headers('X-Auth') username: string,
+  ) {
+    const userId = await this.userService.getUserIdByUsername(username);
+    return this.childService.removeChildCare(
+      Number(childId),
+      Number(childCareId),
+      userId,
+    );
+  }
+
   @Delete(':id')
   async deleteChild(
     @Headers('X-Auth') username: string,
@@ -54,7 +69,7 @@ export class ChildController {
 
     return this.childService.delete(id);
   }
-  @Get('export.csv')
+  @Get('/children/export.csv')
   async exportChildren(
     @Res() res: Response,
     @Query('childCareId') childCareId?: number, // Optional query parameter
@@ -67,44 +82,20 @@ export class ChildController {
         'attachment; filename=children_export.csv',
       );
 
-      // Create a stream to write the CSV data
-      const csvStream = new Stream.PassThrough();
+      // Get the CSV stream from the service
+      const csvStream =
+        await this.childService.getChildrenForExport(childCareId); // Pass childCareId here
 
-      // Start piping the CSV stream to the response
+      // Pipe the CSV stream to the response
       csvStream.pipe(res);
 
-      // Write CSV headers to the stream
-      csvStream.write('ID, Firstname, Lastname, ChildCareID\n');
-
-      // Get children data based on `childCareId` from the service
-      const children =
-        await this.childService.getChildrenForExport(childCareId);
-
-      // Use a Set to keep track of unique children (no duplicates)
-      const seenChildren = new Set<number>();
-
-      // Write each child record to the CSV stream, ensuring no duplicates
-      for (const child of children) {
-        if (!seenChildren.has(child.id)) {
-          seenChildren.add(child.id);
-
-          // If `childCareId` is provided, use it. Otherwise, join all `childCareIds` as a string.
-          const childCareField = childCareId
-            ? child.childCareIds?.includes(childCareId)
-              ? childCareId
-              : ''
-            : child.childCareIds?.length > 0
-              ? child.childCareIds.join(', ')
-              : ''; // Use empty string if `childCareIds` is undefined or empty
-
-          // Construct the CSV line and write it to the stream
-          const line = `${child.id},${child.firstname},${child.lastname},${childCareField}\n`;
-          csvStream.write(line);
+      // Handle errors in streaming
+      csvStream.on('error', (error) => {
+        console.error('Error while streaming CSV:', error);
+        if (!res.headersSent) {
+          res.status(500).send('Failed to stream CSV data.');
         }
-      }
-
-      // End the CSV stream once all data has been written
-      csvStream.end();
+      });
     } catch (error) {
       console.error('Error exporting children as CSV:', error);
 

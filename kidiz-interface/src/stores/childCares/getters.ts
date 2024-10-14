@@ -1,4 +1,4 @@
-import type { IChildCare } from "@/types/childCare";
+import type { IChildCare } from '@/types/childCare'
 
 /**
  * @description Getters for childCares store
@@ -7,7 +7,7 @@ import type { IChildCare } from "@/types/childCare";
  */
 
 export default {
-    getChildCares(state: { childCares: IChildCare[]; }) {
-        return state.childCares;
-    }
-};
+  getChildCares(state: { childCares: IChildCare[] }) {
+    return state.childCares
+  }
+}

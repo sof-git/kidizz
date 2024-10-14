@@ -44,7 +44,7 @@ export class ChildCareController {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    return this.childCareService.delete(id);
+    return this.childCareService.delete(id, userId);
   }
 
   @Get()

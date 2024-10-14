@@ -7,6 +7,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 
 @Entity()
@@ -14,6 +15,7 @@ export class ChildCare {
   @PrimaryGeneratedColumn()
   id?: number;
 
+  @Index({ unique: true })
   @Column({ type: 'varchar', length: 100, nullable: false })
   name: string;
 

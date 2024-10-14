@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToOne,
   RelationId,
+  Index,
 } from 'typeorm';
 import { ChildCare } from '../childCare/childCare.entity';
 import { User } from '../user/user.entity';
@@ -15,9 +16,11 @@ export class Child {
   @PrimaryGeneratedColumn()
   id?: number;
 
+  @Index()
   @Column({ type: 'varchar', length: 100, nullable: false })
   firstname: string;
 
+  @Index()
   @Column({ type: 'varchar', length: 100, nullable: false })
   lastname: string;
 
@@ -30,7 +33,9 @@ export class Child {
   userId: number;
 
   // A many-to-many relationship with ChildCare
-  @ManyToMany(() => ChildCare, (childCare) => childCare.children)
+  @ManyToMany(() => ChildCare, (childCare) => childCare.children, {
+    lazy: true,
+  })
   @JoinTable({
     name: 'child_care_assignment', // Name of the junction table
     joinColumn: { name: 'childId', referencedColumnName: 'id' },

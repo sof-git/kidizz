@@ -6,32 +6,31 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path:'/login',
-      name:'Login',
+      path: '/login',
+      name: 'Login',
       component: Login
     },
     {
-      path:'/',
-      name:'Home',
+      path: '/',
+      name: 'Home',
       component: Home
     },
     {
-      path:'/child-care/:name',
-      name:'ChildCare',
+      path: '/child-care/:name',
+      name: 'ChildCare',
       component: ChildCare
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login'];
+  const publicPages = ['/login']
   const authRequired = !publicPages.includes(to.path)
   const loggedIn = localStorage.getItem('user')
   if (authRequired && !loggedIn) {
     return next('/login')
   }
-  next();    
+  next()
 })
-
 
 export default router
